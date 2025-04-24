@@ -1,25 +1,26 @@
 import streamlit as st
-import fitz  
-from groq import Groq  
+import fitz
+from groq import Groq
 import os
 
-# Caminho dinâmico da imagem
+# Caminho da imagem
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 LOGO_PATH = os.path.join(CURRENT_DIR, "logo.png")
 
-# Configurar chave da Groq
-GROQ_API_KEY = "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"
+
+GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 
-# Função para extrair texto dos PDFs
+# Extrair texto dos PDFs
 def extract_text_from_pdfs(uploaded_pdfs):
     text = ""
     for pdf in uploaded_pdfs:
-        with fitz.open(stream=pdf.read(), filetype="pdf") as doc: 
+        with fitz.open(stream=pdf.read(), filetype="pdf") as doc:
             for page in doc:
-                text += page.get_text("text") 
+                text += page.get_text("text")
     return text
 
+# Consulta à Groq
 def chat_with_groq(prompt, context):
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
@@ -30,24 +31,53 @@ def chat_with_groq(prompt, context):
     )
     return response.choices[0].message.content
 
-# Interface
+# Interface Streamlit
 def main():
-    st.title("Chat Inteligente")
-    st.image(LOGO_PATH, width=200, caption="Sistema Inteligente")
+    st.set_page_config(page_title="Chat Inteligente", layout="centered")
+    
+    # Estilo visual com markdown
+    st.markdown("""
+        <style>
+            .main { background-color: #f9f9f9; padding: 2rem; border-radius: 10px; }
+            .title { text-align: center; font-size: 2rem; color: #4a4a4a; }
+            .subtext { color: #888; text-align: center; }
+            .stButton>button {
+                background-color: #4CAF50;
+                color: white;
+                font-weight: bold;
+                border-radius: 8px;
+                padding: 0.5rem 1rem;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="main">', unsafe_allow_html=True)
+
+    st.image(LOGO_PATH, width=180)
+    st.markdown('<div class="title">📖Assistente inteligente de bibliotéca📖</div>', unsafe_allow_html=True)
+    st.markdown('<p class="subtext">Faça upload de um ou mais PDFs e tire dúvidas sobre o conteúdo!</p>', unsafe_allow_html=True)
 
     with st.sidebar:
-        st.header("Upload de arquivos PDF")
-        uploaded_pdfs = st.file_uploader("Adicione arquivos PDF", type="pdf", accept_multiple_files=True)
+        st.header("📁 Upload de PDF")
+        uploaded_pdfs = st.file_uploader("Selecione seus arquivos PDF", type="pdf", accept_multiple_files=True)
+
+    if "document_text" not in st.session_state:
+        st.session_state["document_text"] = ""
 
     if uploaded_pdfs:
-        text = extract_text_from_pdfs(uploaded_pdfs)
-        st.session_state["document_text"] = text  
+        with st.spinner("🔍 Extraindo texto dos PDFs..."):
+            st.session_state["document_text"] = extract_text_from_pdfs(uploaded_pdfs)
+        st.success("✅ PDFs processados com sucesso!")
 
-    user_input = st.text_input("Digite sua pergunta:")
-    
-    if user_input and "document_text" in st.session_state:
-        response = chat_with_groq(user_input, st.session_state["document_text"])
-        st.write("Resposta:", response)
+    user_input = st.text_area("💬 Digite sua pergunta aqui:", height=120)
+
+    if st.button("Enviar") and user_input.strip() != "" and st.session_state["document_text"]:
+        with st.spinner("🧠 Pensando..."):
+            response = chat_with_groq(user_input, st.session_state["document_text"])
+        st.markdown("### 📌 Resposta:")
+        st.markdown(response)
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
