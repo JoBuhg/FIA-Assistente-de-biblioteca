@@ -7,7 +7,6 @@ import os
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 LOGO_PATH = os.path.join(CURRENT_DIR, "logo.png")
 
-
 GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 
@@ -34,11 +33,10 @@ def chat_with_groq(prompt, context):
 # Interface Streamlit
 def main():
     st.set_page_config(page_title="Chat Inteligente", layout="centered")
-    
+
     # Estilo visual com markdown
     st.markdown("""
         <style>
-            .main { background-color: #f9f9f9; padding: 2rem; border-radius: 10px; }
             .title { text-align: center; font-size: 2rem; color: #4a4a4a; }
             .subtext { color: #888; text-align: center; }
             .stButton>button {
@@ -51,15 +49,14 @@ def main():
         </style>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="main">', unsafe_allow_html=True)
-
-    st.image(LOGO_PATH, width=180)
-    st.markdown('<div class="title">📖Assistente inteligente de bibliotéca📖</div>', unsafe_allow_html=True)
-    st.markdown('<p class="subtext">Faça upload de um ou mais PDFs e tire dúvidas sobre o conteúdo!</p>', unsafe_allow_html=True)
-
+    # Sidebar com logo e upload
     with st.sidebar:
+        st.image(LOGO_PATH, width=180)
         st.header("📁 Upload de PDF")
         uploaded_pdfs = st.file_uploader("Selecione seus arquivos PDF", type="pdf", accept_multiple_files=True)
+
+    st.markdown('<div class="title">📖 Assistente inteligente de biblioteca 📖</div>', unsafe_allow_html=True)
+    st.markdown('<p class="subtext">Faça upload de um ou mais PDFs e tire dúvidas sobre o conteúdo!</p>', unsafe_allow_html=True)
 
     if "document_text" not in st.session_state:
         st.session_state["document_text"] = ""
@@ -76,8 +73,6 @@ def main():
             response = chat_with_groq(user_input, st.session_state["document_text"])
         st.markdown("### 📌 Resposta:")
         st.markdown(response)
-
-    st.markdown("</div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
