@@ -34,29 +34,13 @@ def chat_with_groq(prompt, context):
 def main():
     st.set_page_config(page_title="Chat Inteligente", layout="centered")
 
-    # Estilo visual com fundo azul
+    # Estilo visual com markdown
     st.markdown("""
         <style>
-            body {
-                background-color: #e6f0ff;
-            }
-            .stApp {
-                background-color: #e6f0ff;
-            }
-            [data-testid="stSidebar"] {
-                background-color: #cce0ff;
-            }
-            .title {
-                text-align: center; 
-                font-size: 2rem; 
-                color: #2a4d8f;
-            }
-            .subtext {
-                color: #4d6fa3; 
-                text-align: center;
-            }
+            .title { text-align: center; font-size: 2rem; color: #4a4a4a; }
+            .subtext { color: #888; text-align: center; }
             .stButton>button {
-                background-color: #1f77d0;
+                background-color: #4CAF50;
                 color: white;
                 font-weight: bold;
                 border-radius: 8px;
@@ -78,7 +62,7 @@ def main():
         st.session_state["document_text"] = ""
 
     if uploaded_pdfs:
-        with st.spinner("🔍 Extraindo as Informações dos PDFs..."):
+        with st.spinner("🔍 Extraindo as Infromações dos PDFs..."):
             st.session_state["document_text"] = extract_text_from_pdfs(uploaded_pdfs)
         st.success("✅ PDFs processados com sucesso!")
 
